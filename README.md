@@ -39,6 +39,23 @@ brew install yq jq
 ./scripts/route.sh '@chulclebot [ROLE=planner] 배포 순서 정리해줘'
 ```
 
+## macOS 앱 형태로 실행
+CLI가 익숙하지 않으면 앱으로 빌드해서 더블클릭 실행할 수 있습니다.
+
+```bash
+cd ~/workspace/orchestration-cli
+./scripts/build_macos_app.sh
+```
+
+생성물:
+- `dist/OrchestrationCLI.app`
+
+사용법:
+1. Finder에서 `dist/OrchestrationCLI.app` 더블클릭
+2. 역할(role)과 작업(task) 입력
+3. Terminal이 열리며 doctor + dispatch 실행
+4. 결과는 `runs/` 폴더에 저장
+
 ## 동작 방식
 1. 역할에 맞는 모델을 `roles.yaml`에서 선택
 2. `model_runner.sh`로 실행
