@@ -1,0 +1,34 @@
+# Multi-model orchestration roles (Ollama 제외)
+# fixed providers: op4, so, co, gp, GLM
+
+version: 1
+
+defaults:
+  timeout_sec: 120
+  temperature: 0.2
+
+roles:
+  planner:
+    model_alias: so
+    provider_model: anthropic/claude-sonnet-4-6
+    purpose: "요구사항 정리, 작업 분해, 우선순위 수립"
+
+  coder:
+    model_alias: co
+    provider_model: openai-codex/gpt-5.3-codex
+    purpose: "코드 생성/수정, 테스트 코드 작성"
+
+  researcher:
+    model_alias: gp
+    provider_model: google-gemini-cli/gemini-3-pro-preview
+    purpose: "문서/자료 조사, 비교 분석"
+
+  operator:
+    model_alias: GLM
+    provider_model: zai/glm-5
+    purpose: "운영 절차, 점검 체크리스트, 실행 플랜"
+
+  reviewer:
+    model_alias: op4
+    provider_model: anthropic/claude-opus-4-6
+    purpose: "최종 리뷰, 리스크 검토, 품질 보증"
