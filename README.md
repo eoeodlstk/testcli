@@ -43,17 +43,25 @@ brew install yq jq
 1. 역할에 맞는 모델을 `roles.yaml`에서 선택
 2. `model_runner.sh`로 실행
    - 기본: 각 벤더 CLI 우선 시도 (`codex`, `claude`, `gemini`)
-   - 불가 시 API 호출 폴백
+   - **기본 정책:** 비-GLM 모델은 유료 API 폴백 비활성(로컬 CLI/GUI 경로 우선)
+   - GLM만 API 키 기반 실행
+   - 필요 시에만 `ORCH_ALLOW_BILLED_API=1`로 비-GLM API 폴백 임시 활성화
 3. 실패 시(비-co 모델) `co`로 1회 자동 폴백
 
 ## 출력
 - 결과 파일: `runs/YYYYMMDD-HHMMSS-<role>.md`
 
-## 환경변수(API 폴백용)
-- `OPENAI_API_KEY`
-- `ANTHROPIC_API_KEY`
-- `GEMINI_API_KEY` 또는 `GOOGLE_API_KEY`
-- `ZHIPUAI_API_KEY` 또는 `GLM_API_KEY`
+## 환경변수
+기본 정책(권장):
+- 비-GLM 모델(`co`, `so`, `op4`, `gp`)은 로컬 CLI 기반 사용 (유료 API 폴백 꺼짐)
+- GLM만 API 키 사용
+  - `ZHIPUAI_API_KEY` 또는 `GLM_API_KEY`
+
+선택(필요 시만):
+- `ORCH_ALLOW_BILLED_API=1` 설정 시 비-GLM API 폴백 허용
+  - `OPENAI_API_KEY`
+  - `ANTHROPIC_API_KEY`
+  - `GEMINI_API_KEY` 또는 `GOOGLE_API_KEY`
 
 민감정보는 `.env`/Keychain만 사용하고, Git에 커밋하지 마세요.
 

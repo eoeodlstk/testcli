@@ -17,18 +17,21 @@ command -v curl >/dev/null 2>&1 && ok "curl 설치됨" || err "curl 미설치"
 
 echo
 
-echo "[환경변수 점검]"
-[[ -n "${OPENAI_API_KEY:-}" ]] && ok "OPENAI_API_KEY 설정" || warn "OPENAI_API_KEY 미설정 (co 사용 불가)"
-[[ -n "${ANTHROPIC_API_KEY:-}" ]] && ok "ANTHROPIC_API_KEY 설정" || warn "ANTHROPIC_API_KEY 미설정 (op4/so 사용 불가)"
-if [[ -n "${GEMINI_API_KEY:-}" || -n "${GOOGLE_API_KEY:-}" ]]; then
-  ok "GEMINI_API_KEY/GOOGLE_API_KEY 설정"
-else
-  warn "GEMINI_API_KEY/GOOGLE_API_KEY 미설정 (gp 사용 불가)"
-fi
+echo "[실행 경로 점검]"
+command -v codex >/dev/null 2>&1 && ok "codex CLI 설치됨 (co)" || warn "codex CLI 미설치 (co 실행 불가, API fallback은 기본 비활성)"
+command -v claude >/dev/null 2>&1 && ok "claude CLI 설치됨 (op4/so)" || warn "claude CLI 미설치 (op4/so 실행 불가, API fallback은 기본 비활성)"
+command -v gemini >/dev/null 2>&1 && ok "gemini CLI 설치됨 (gp)" || warn "gemini CLI 미설치 (gp 실행 불가, API fallback은 기본 비활성)"
+
 if [[ -n "${ZHIPUAI_API_KEY:-}" || -n "${GLM_API_KEY:-}" ]]; then
-  ok "ZHIPUAI_API_KEY/GLM_API_KEY 설정"
+  ok "ZHIPUAI_API_KEY/GLM_API_KEY 설정 (GLM)"
 else
   warn "ZHIPUAI_API_KEY/GLM_API_KEY 미설정 (GLM 사용 불가)"
+fi
+
+if [[ "${ORCH_ALLOW_BILLED_API:-0}" == "1" ]]; then
+  warn "ORCH_ALLOW_BILLED_API=1 (유료 API fallback 활성화)"
+else
+  ok "ORCH_ALLOW_BILLED_API=0 (기본값, 비-GLM 유료 API fallback 비활성)"
 fi
 
 echo

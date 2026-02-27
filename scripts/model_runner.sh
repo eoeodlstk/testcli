@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Unified runner for 5 fixed models (CLI-first, API fallback)
+# Unified runner for 5 fixed models
+# default policy: non-GLM models run local CLI only (no paid API fallback)
+# set ORCH_ALLOW_BILLED_API=1 to re-enable API fallback for non-GLM models
 # models:
 # - anthropic/claude-opus-4-6 (op4)
 # - anthropic/claude-sonnet-4-6 (so)
@@ -13,6 +15,7 @@ MODEL=""
 PROMPT=""
 PROMPT_FILE=""
 TIMEOUT_SEC="${ORCH_TIMEOUT_SEC:-180}"
+ALLOW_BILLED_API="${ORCH_ALLOW_BILLED_API:-0}"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -42,6 +45,13 @@ if [[ -f "$ROOT_DIR/.env" ]]; then
 fi
 
 need_bin() { command -v "$1" >/dev/null 2>&1; }
+
+no_billed_api_err() {
+  local vendor="$1"
+  echo "[ERR] ${vendor} API fallback is disabled by policy (ORCH_ALLOW_BILLED_API=0)." >&2
+  echo "[HINT] Install/login ${vendor} CLI for local use, or set ORCH_ALLOW_BILLED_API=1 if you really want paid API fallback." >&2
+  exit 1
+}
 
 extract_or_fail() {
   local raw="$1"
@@ -149,13 +159,29 @@ glm_api() {
 
 case "$MODEL" in
   openai-codex/gpt-5.3-codex)
-    run_codex || openai_api ;;
+    if run_codex; then
+      exit 0
+    fi
+    [[ "$ALLOW_BILLED_API" == "1" ]] || no_billed_api_err "OpenAI"
+    openai_api ;;
   anthropic/claude-sonnet-4-6)
-    run_claude "claude-sonnet-4-6" || anthropic_api "claude-sonnet-4-6" ;;
+    if run_claude "claude-sonnet-4-6"; then
+      exit 0
+    fi
+    [[ "$ALLOW_BILLED_API" == "1" ]] || no_billed_api_err "Anthropic"
+    anthropic_api "claude-sonnet-4-6" ;;
   anthropic/claude-opus-4-6)
-    run_claude "claude-opus-4-6" || anthropic_api "claude-opus-4-6" ;;
+    if run_claude "claude-opus-4-6"; then
+      exit 0
+    fi
+    [[ "$ALLOW_BILLED_API" == "1" ]] || no_billed_api_err "Anthropic"
+    anthropic_api "claude-opus-4-6" ;;
   google-gemini-cli/gemini-3-pro-preview)
-    run_gemini || gemini_api ;;
+    if run_gemini; then
+      exit 0
+    fi
+    [[ "$ALLOW_BILLED_API" == "1" ]] || no_billed_api_err "Gemini"
+    gemini_api ;;
   zai/glm-5)
     glm_api ;;
   *)
