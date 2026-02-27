@@ -56,6 +56,21 @@ cd ~/workspace/orchestration-cli
 3. Terminal이 열리며 doctor + dispatch 실행
 4. 결과는 `runs/` 폴더에 저장
 
+### 아이콘/코드서명 옵션
+기본:
+- `assets/orchestration-cli.icns`가 있으면 앱 아이콘으로 적용
+- 없으면 `scripts/generate_default_icon.sh`로 기본 아이콘(🚀) 자동 생성
+- 코드서명은 ad-hoc(`-`) 기본 적용
+
+커스텀:
+```bash
+# 커스텀 아이콘 사용
+ORCH_APP_ICON=/absolute/path/MyIcon.icns ./scripts/build_macos_app.sh
+
+# Developer ID 서명
+ORCH_CODESIGN_IDENTITY="Developer ID Application: Your Name (TEAMID)" ./scripts/build_macos_app.sh
+```
+
 ## 동작 방식
 1. 역할에 맞는 모델을 `roles.yaml`에서 선택
 2. `model_runner.sh`로 실행
